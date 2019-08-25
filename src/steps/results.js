@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Results ({ recommendations, onNext, sID = "000091371", onRequestQuote }) {
+export default function Results ({ recommendations, onNext, sID, onRequestQuote }) {
   const [r1, r2] = recommendations
 
   return (

@@ -5,6 +5,8 @@ import Results from './steps/results'
 import Intent from './steps/quotation'
 import Thanks from './steps/thanks'
 
+const API = 'http://soriana.inboard.mx:8081/api'
+
 class App extends Component {
   state = {
     page: 'welcome',
@@ -13,7 +15,7 @@ class App extends Component {
       payments: 48,
       amount: '$799'
     },
-    sID: '00014533'
+    sID: '0000000'
   }
 
   init = () => {
@@ -29,22 +31,30 @@ class App extends Component {
   track = e => {
     e.preventDefault()
     // TODO: Enviar datos
-    return this.setState({
-      page: 'results',
-      recommendations: [
-        {
-          model: 'FT 250 TS',
-          description: 'N/A',
-          realPrice: '$36,109.64',
-          currentPrice: '$30,999.00'
-        },
-        {
-          model: 'FT 260 TS',
-          description: 'N/A',
-          realPrice: '$46,109.64',
-          currentPrice: '$40,999.00'
-        }
-      ]
+    const intent = {
+      q1: e.target.first.value,
+      q2: e.target.use.value,
+      q3: e.target.budget.value,
+      q4: e.target.km.value,
+    }
+
+    return fetch(`${API}/intent`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({ widget: intent, status: 'NA', name: 'NA', city: 'NA', age: '99' })
+    }).then(res => {
+      return res.json().then(({ recommendations, s_id: sID }) => {
+        this.setState({
+          sID,
+          page: 'results',
+          recommendations: [
+            recommendations.r1,
+            recommendations.r2
+          ]
+        })
+      })
     })
   }
 
@@ -58,8 +68,22 @@ class App extends Component {
 
   finish = e => {
     e.preventDefault()
-    return this.setState({
-      page: 'thanks'
+    const payload = {
+      name: e.target.name.value,
+      age: e.target.phone.value
+    }
+    return fetch(`${API}/intent/${this.state.sID}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(response => {
+      return this.setState({
+        page: 'thanks'
+      })
     })
   }
 
@@ -107,7 +131,7 @@ class App extends Component {
         return (
           <div style={{ maxWidth: '320px', margin: '0 auto' }}>
             <span style={{ width: 24, height: 24, textAlign: 'center', position: 'absolute', top: 0, right: 0, zIndex: 1 }} onClick={closeWidget}>&times;</span>
-            <Results recommendations={recommendations} onRequestQuote={goToIntent} />
+            <Results recommendations={recommendations} onRequestQuote={goToIntent} sID={sID} />
           </div>
         )
         break;

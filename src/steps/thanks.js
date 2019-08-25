@@ -12,7 +12,7 @@ export default function Thanks ({ model: { model, realPrice, currentPrice }, sID
         </div>
       </div>
       <div className="text-center margin-bottom-1">Si no aguantas más y quieres conocer tu moto en persona, visita tu tienda Elektra más cercana y presenta el siguiente código para recibir una oferta especial.</div>
-      <div className="text-center text-highlight">0004523</div>
+      <div className="text-center text-highlight">{sID}</div>
     </div>
   )
 }
